@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         </style>
         <div id="toggle-chat-btn">
-            <img src="./img/gpt.png" alt="Chat Icon" style="width: 100%; height: 100%; border-radius: 50%;">
+            <img src="https://openai.com/favicon.ico" alt="hi" style="width: 100%; height: 100%; border-radius: 50%;">
         </div>
         <div id="chat-container" class="bg-light">
             <div class="p-3" style="height: 400px; overflow: auto;">
