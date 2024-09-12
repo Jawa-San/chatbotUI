@@ -179,5 +179,5 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Simulate a greeting from the bot
-    sendMessage('bot', 'Hello! Ask any question please!');
+    sendMessage('bot', 'Hello! Ask any question at once!');
 });
