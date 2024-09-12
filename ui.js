@@ -1,109 +1,113 @@
 document.addEventListener('DOMContentLoaded', function () {
     // Define the HTML content
     const htmlContent = `
-        <style>
-            .chatbot-widget {
-                font-family: 'Arial', sans-serif;
-                background-color: #f8f9fa;
-            }
-            
-            .chatbot-widget #toggle-chat-btn {
-                position: fixed;
-                bottom: 20px;
-                left: 20px;
-                width: 50px;
-                height: 50px;
-                background-color: #007bff;
-                color: #fff;
-                border-radius: 50%;
-                text-align: center;
-                line-height: 50px;
-                cursor: pointer;
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            }
-            
-            .chatbot-widget #chat-container {
-                background-color: #f0f0f0;
-                display: none;
-                text-align: center;
-                position: fixed;
-                bottom: 80px;
-                left: 20px;
-                width: 300px;
-                height: 400px;
-                overflow: hidden;
-                transition: max-height 0.3s ease-out;
-                border-radius: 15px;
-                z-index: 1000;
-            }
-            
-            .chatbot-widget #chat-content {
-                max-height: calc(100% - 150px);
-                overflow-y: auto;
-            }
-            
-            .chatbot-widget #user-input {
-                width: 70%;
-                padding: 8px;
-                border: 1px solid #ccc;
-                border-radius: 5px;
-                margin-right: 8px;
-                margin-bottom: 8px;
-            }
-            
-            .chatbot-widget #send-btn {
-                padding: 8px 16px;
-                background-color: #007bff;
-                color: #fff;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-            }
-            
-            .chatbot-widget .chat-message {
-                margin: 10px;
-                padding: 10px;
-                border-radius: 15px;
-                word-wrap: break-word;
-                width: fit-content;
-                max-width: 80%;
-                min-height: 20px;
-            }
-            
-            .chatbot-widget .user-message {
-                background-color: #007bff;
-                color: #fff;
-                margin-left: auto;
-                margin-right: 10px;
-            }
-            
-            .chatbot-widget .bot-message {
-                background-color: #b2e0b2;
-                color: #000;
-                margin-left: 10px;
-                margin-right: auto;
-            }
-            
-            .chatbot-widget #chat-container.show {
-                display: block;
-            }
-        </style>
-        <div class="chatbot-widget">
-            <div id="toggle-chat-btn">
-                <img src="https://openai.com/favicon.ico" alt="Chat Icon" style="width: 100%; height: 100%; border-radius: 50%;">
-            </div>
-            <div id="chat-container" class="bg-light">
-                <div class="p-3" style="height: 400px; overflow: auto;">
-                    <h5>Chatbot</h5>
-                    <div id="chat-content" style="height: calc(100% - 56px); overflow-y: auto;"></div>
-                    <div class="d-flex">
-                        <input type="text" id="user-input" placeholder="Type your message">
-                        <button id="send-btn">Send</button>
-                    </div>
+    <style>
+        .chatbot-widget {
+            font-family: 'Arial', sans-serif !important;
+            background-color: #f8f9fa !important;
+        }
+        
+        .chatbot-widget #toggle-chat-btn {
+            position: fixed !important;
+            bottom: 20px !important;
+            left: 20px !important;
+            width: 50px !important;
+            height: 50px !important;
+            background-color: #007bff !important;
+            color: #fff !important;
+            border-radius: 50% !important;
+            text-align: center !important;
+            line-height: 50px !important;
+            cursor: pointer !important;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+        }
+        
+        .chatbot-widget #chat-container {
+            background-color: #f0f0f0 !important;
+            display: none !important;
+            text-align: center !important;
+            position: fixed !important;
+            bottom: 80px !important;
+            left: 20px !important;
+            width: 300px !important;
+            height: 400px !important;
+            overflow: hidden !important;
+            transition: max-height 0.3s ease-out !important;
+            border-radius: 15px !important;
+            z-index: 1000 !important;
+        }
+        
+        .chatbot-widget #chat-content {
+            max-height: calc(100% - 150px) !important;
+            overflow-y: auto !important;
+        }
+        
+        .chatbot-widget #user-input {
+            width: 70% !important;
+            padding: 8px !important;
+            border: 1px solid #ccc !important;
+            border-radius: 5px !important;
+            margin-right: 8px !important;
+            margin-bottom: 8px !important;
+        }
+        
+        .chatbot-widget #send-btn {
+            padding: 8px 16px !important;
+            background-color: #007bff !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 5px !important;
+            cursor: pointer !important;
+        }
+        
+        .chatbot-widget .chat-message {
+            margin: 10px !important;
+            padding: 10px !important;
+            border-radius: 15px !important;
+            word-wrap: break-word !important;
+            width: fit-content !important;
+            max-width: 80% !important;
+            min-height: 20px !important;
+            text-align: left !important; /* Ensures text is left-aligned */
+        }
+        
+        .chatbot-widget .user-message {
+            background-color: #007bff !important;
+            color: #fff !important;
+            margin-left: auto !important;
+            margin-right: 10px !important;
+            text-align: left !important; /* Ensures text is left-aligned */
+        }
+        
+        .chatbot-widget .bot-message {
+            background-color: #b2e0b2 !important;
+            color: #000 !important;
+            margin-left: 10px !important;
+            margin-right: auto !important;
+            text-align: left !important; /* Ensures text is left-aligned */
+        }
+        
+        .chatbot-widget #chat-container.show {
+            display: block !important;
+        }
+    </style>
+    <div class="chatbot-widget">
+        <div id="toggle-chat-btn">
+            <img src="https://openai.com/favicon.ico" alt="Chat Icon" style="width: 100%; height: 100%; border-radius: 50%;">
+        </div>
+        <div id="chat-container" class="bg-light">
+            <div class="p-3" style="height: 400px; overflow: auto;">
+                <h5>Chatbot</h5>
+                <div id="chat-content" style="height: calc(100% - 56px); overflow-y: auto;"></div>
+                <div class="d-flex">
+                    <input type="text" id="user-input" placeholder="Type your message">
+                    <button id="send-btn">Send</button>
                 </div>
             </div>
         </div>
-    `;
+    </div>
+`;
+
 
     // Inject the HTML content
     document.body.insertAdjacentHTML('beforeend', htmlContent);
