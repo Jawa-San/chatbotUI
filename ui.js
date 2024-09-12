@@ -1,52 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-        // Create a style tag
-    const style = document.createElement('style');
-
-    // Add global CSS reset
-    style.innerHTML = `
-        /* Reset CSS */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            height: 100%;
-            width: 100%;
-            font-family: sans-serif;
-        }
-
-        img, picture, video, canvas {
-            display: block;
-            max-width: 100%;
-        }
-
-        input, button, textarea, select {
-            font: inherit;
-        }
-
-        /* Clear list styles */
-        ul, ol {
-            list-style: none;
-        }
-
-        /* Remove text decoration and color */
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        /* Reset default table styles */
-        table {
-            border-collapse: collapse;
-            border-spacing: 0;
-        }
-    `;
-
-    // Append the style to the head of the document
-    document.head.appendChild(style);
-
     // Define the HTML content
     const htmlContent = `
         <style>
@@ -227,5 +179,5 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Simulate a greeting from the bot
-    sendMessage('bot', 'Hi there! Ask any question at once!');
+    sendMessage('bot', 'Hi! Ask any question at once!');
 });
