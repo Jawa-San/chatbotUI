@@ -2,13 +2,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // Define the HTML content
     const htmlContent = `
         <style>
-            body {
-                padding-bottom: 56px; /* Adjusted for Bootstrap fixed navbar */
+            .chatbot-widget {
                 font-family: 'Arial', sans-serif;
                 background-color: #f8f9fa;
             }
             
-            #toggle-chat-btn {
+            .chatbot-widget #toggle-chat-btn {
                 position: fixed;
                 bottom: 20px;
                 left: 20px;
@@ -23,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             }
             
-            #chat-container {
+            .chatbot-widget #chat-container {
                 background-color: #f0f0f0;
                 display: none;
                 text-align: center;
@@ -31,84 +30,76 @@ document.addEventListener('DOMContentLoaded', function () {
                 bottom: 80px;
                 left: 20px;
                 width: 300px;
-                height: 400px; /* Fixed height for the chat container */
-                overflow: hidden; /* Hide overflow content */
+                height: 400px;
+                overflow: hidden;
                 transition: max-height 0.3s ease-out;
                 border-radius: 15px;
                 z-index: 1000;
             }
             
-            #chat-content {
-                max-height: calc(100% - 150px); /* Adjust the height as needed */
+            .chatbot-widget #chat-content {
+                max-height: calc(100% - 150px);
                 overflow-y: auto;
             }
             
-            #user-input {
+            .chatbot-widget #user-input {
                 width: 70%;
                 padding: 8px;
                 border: 1px solid #ccc;
                 border-radius: 5px;
                 margin-right: 8px;
                 margin-bottom: 8px;
-                display: inline-block;
             }
             
-            #send-btn {
+            .chatbot-widget #send-btn {
                 padding: 8px 16px;
                 background-color: #007bff;
                 color: #fff;
                 border: none;
                 border-radius: 5px;
                 cursor: pointer;
-                display: inline-block;
             }
-            .chat-message {
+            
+            .chatbot-widget .chat-message {
                 margin: 10px;
                 padding: 10px;
-                border-radius: 15px; /* Rounded corners for the chat bubbles */
-                display: block; /* Each message will be on a new line */
-                word-wrap: break-word; /* Allow words to break onto the next line if needed */
+                border-radius: 15px;
+                word-wrap: break-word;
                 width: fit-content;
-                word-break: break-word;
-                max-width: 80%; /* Adjust as necessary to set the maximum width of a chat bubble */
-                min-height: 20px; /* Adjust as needed to ensure minimum height is maintained */
+                max-width: 80%;
+                min-height: 20px;
             }
             
-            /* Style for user and bot messages */
-            .user-message {
+            .chatbot-widget .user-message {
                 background-color: #007bff;
                 color: #fff;
-                text-align: right;
                 margin-left: auto;
                 margin-right: 10px;
-                clear: both;
-                padding: 10px; /* Adjust padding to ensure text is not too close to the edges */
             }
             
-            .bot-message {
+            .chatbot-widget .bot-message {
                 background-color: #b2e0b2;
                 color: #000;
-                text-align: left;
-                margin-right: auto;
                 margin-left: 10px;
-                clear: both;
-                padding: 10px; /* Adjust padding to ensure text is not too close to the edges */
+                margin-right: auto;
             }
             
-            #chat-container.show {
+            .chatbot-widget #chat-container.show {
                 display: block;
             }
         </style>
-        <div id="toggle-chat-btn">
-            <img src="https://openai.com/favicon.ico" alt="hi" style="width: 100%; height: 100%; border-radius: 50%;">
-        </div>
-        <div id="chat-container" class="bg-light">
-            <div class="p-3" style="height: 400px; overflow: auto;">
-                <h5>Chatbot</h5>
-                <div id="chat-content" style="height: calc(100% - 56px); overflow-y: auto;"></div>
-                <div class="d-flex">
-                    <input type="text" id="user-input" placeholder="Type your message">
-                    <button id="send-btn">Send</button>
+        <div class="chatbot-widget">
+            <div id="toggle-chat-btn">
+                <img src="https://openai.com/favicon.ico" alt="Chat Icon" style="width: 100%; height: 100%; border-radius: 50%;">
+            </div>
+            <div id="chat-container" class="bg-light">
+                <div class="p-3" style="height: 400px; overflow: auto;">
+                    <h5>Chatbot</h5>
+                    <div id="chat-content" style="height: calc(100% - 56px); overflow-y: auto;"></div>
+                    <div class="d-flex">
+                        <input type="text" id="user-input" placeholder="Type your message">
+                        <button id="send-btn">Send</button>
+                    </div>
                 </div>
             </div>
         </div>
