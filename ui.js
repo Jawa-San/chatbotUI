@@ -106,82 +106,102 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         </div>
     </div>
-`;
+    `;
 
-
-    // Inject the HTML content
-    document.body.insertAdjacentHTML('beforeend', htmlContent);
-
-    // Function to toggle chat container
-    function toggleChatContainer() {
-        const chatContainer = document.getElementById('chat-container');
-        chatContainer.classList.toggle('show');
-    }
-
-    // Function to scroll the chatbox window to the bottom
-    function scrollChatToBottom() {
-        var chatContent = document.getElementById('chat-content');
-        chatContent.scrollTop = chatContent.scrollHeight;
-    }
-
-    // Event listener for send button click
-    document.getElementById('send-btn').addEventListener('click', function () {
-        sendUserMessage();
-    });
-
-    // Event listener for Enter key press in the input field
-    document.getElementById('user-input').addEventListener('keypress', function (e) {
-        if (e.which === 13) {
-            sendUserMessage();
+    // Define the custom element
+    class ChatbotWidget extends HTMLElement {
+        constructor() {
+            super();
+            // Attach shadow DOM and add styles and HTML content
+            const shadow = this.attachShadow({ mode: 'open' });
+            shadow.innerHTML = htmlContent;
         }
-    });
 
-    // Event listener for toggle button click
-    document.getElementById('toggle-chat-btn').addEventListener('click', function () {
-        toggleChatContainer();
-    });
+        connectedCallback() {
+            this.setupEventListeners();
+            // Simulate a greeting from the bot
+            this.sendMessage('bot', 'Hello friends! Ask any question at once!');
+        }
 
-    // Function to send user messages
-    async function sendUserMessage() {
-        const baseUrl = 'http://localhost:3000';
-        const userInput = document.getElementById('user-input').value;
-        if (userInput.trim() !== '') {
-            sendMessage('user', userInput);
-            document.getElementById('user-input').value = '';
-            try {
-                const response = await fetch(`${baseUrl}/processUserMessage`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ userInput }),
-                });
+        setupEventListeners() {
+            const shadowRoot = this.shadowRoot;
 
-                if (response.ok) {
-                    const data = await response.json();
-                    const botResponse = data.botResponse;
-                    sendMessage('bot', botResponse);
-                } else {
-                    console.error('Server error:', response.statusText);
+            // Function to toggle chat container
+            const toggleChatContainer = () => {
+                const chatContainer = shadowRoot.getElementById('chat-container');
+                chatContainer.classList.toggle('show');
+            };
+
+            // Function to scroll the chatbox window to the bottom
+            const scrollChatToBottom = () => {
+                const chatContent = shadowRoot.getElementById('chat-content');
+                chatContent.scrollTop = chatContent.scrollHeight;
+            };
+
+            // Event listener for send button click
+            shadowRoot.getElementById('send-btn').addEventListener('click', () => {
+                this.sendUserMessage();
+            });
+
+            // Event listener for Enter key press in the input field
+            shadowRoot.getElementById('user-input').addEventListener('keypress', (e) => {
+                if (e.which === 13) {
+                    this.sendUserMessage();
                 }
+            });
 
-                var lastMessage = document.querySelector('.user-message:last-child');
-                if (lastMessage) {
-                    lastMessage.scrollIntoView({ behavior: 'smooth' });
+            // Event listener for toggle button click
+            shadowRoot.getElementById('toggle-chat-btn').addEventListener('click', () => {
+                toggleChatContainer();
+            });
+        }
+
+        // Function to send user messages
+        async sendUserMessage() {
+            const baseUrl = 'http://localhost:3000';
+            const userInput = this.shadowRoot.getElementById('user-input').value;
+            if (userInput.trim() !== '') {
+                this.sendMessage('user', userInput);
+                this.shadowRoot.getElementById('user-input').value = '';
+                try {
+                    const response = await fetch(`${baseUrl}/processUserMessage`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ userInput }),
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const botResponse = data.botResponse;
+                        this.sendMessage('bot', botResponse);
+                    } else {
+                        console.error('Server error:', response.statusText);
+                    }
+
+                    const lastMessage = this.shadowRoot.querySelector('.user-message:last-child');
+                    if (lastMessage) {
+                        lastMessage.scrollIntoView({ behavior: 'smooth' });
+                    }
+                } catch (error) {
+                    console.error('Error sending user message:', error);
                 }
-            } catch (error) {
-                console.error('Error sending user message:', error);
             }
         }
+
+        // Function to display messages
+        sendMessage(sender, message) {
+            const chatContent = this.shadowRoot.getElementById('chat-content');
+            chatContent.insertAdjacentHTML('beforeend', `<div class="chat-message ${sender}-message">${message}</div>`);
+            chatContent.scrollTop = chatContent.scrollHeight;
+        }
     }
 
-    // Function to display messages
-    function sendMessage(sender, message) {
-        const chatContent = document.getElementById('chat-content');
-        chatContent.insertAdjacentHTML('beforeend', `<div class="chat-message ${sender}-message">${message}</div>`);
-        chatContent.scrollTop = chatContent.scrollHeight;
-    }
+    // Register the custom element
+    customElements.define('chatbot-widget', ChatbotWidget);
 
-    // Simulate a greeting from the bot
-    sendMessage('bot', 'Hi Boss! Ask any question at once!');
+    // Add the chatbot widget to the page
+    const widget = document.createElement('chatbot-widget');
+    document.body.appendChild(widget);
 });
