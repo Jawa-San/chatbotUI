@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Function to send user messages
         async sendUserMessage() {
-            const baseUrl = 'http://localhost:3000';
+            const baseUrl = 'https://chatbotnode-4.onrender.com';
             const userInput = this.shadowRoot.getElementById('user-input').value;
             if (userInput.trim() !== '') {
                 this.sendMessage('user', userInput);
