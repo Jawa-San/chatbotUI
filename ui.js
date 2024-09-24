@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         
         .chatbot-widget #chat-content {
-            max-height: calc(100% - 150px) !important;
+            max-height: calc(100% - 175px) !important;
             overflow-y: auto !important;
         }
         
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
             width: fit-content !important;
             max-width: 80% !important;
             min-height: 20px !important;
-            text-align: left !important; /* Ensures text is left-aligned */
+            text-align: left !important;
         }
         
         .chatbot-widget .user-message {
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
             color: #fff !important;
             margin-left: auto !important;
             margin-right: 10px !important;
-            text-align: left !important; /* Ensures text is left-aligned */
+            text-align: left !important;
         }
         
         .chatbot-widget .bot-message {
@@ -84,10 +84,24 @@ document.addEventListener('DOMContentLoaded', function () {
             color: #000 !important;
             margin-left: 10px !important;
             margin-right: auto !important;
-            text-align: left !important; /* Ensures text is left-aligned */
+            text-align: left !important;
         }
         
         .chatbot-widget #chat-container.show {
+            display: block !important;
+        }
+
+        .chatbot-widget #typing-indicator {
+            font-style: italic !important;
+            color: #666 !important;
+            margin-bottom: 8px !important;
+            margin-left: 40px !important;
+            height: 20px !important; /* Keeps the padding consistent */
+            display: block !important;
+            text-align: left !important;
+        }
+
+        .chatbot-widget .d-flex {
             display: block !important;
         }
     </style>
@@ -99,6 +113,8 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="p-3" style="height: 400px; overflow: auto;">
                 <h5>Chatbot</h5>
                 <div id="chat-content" style="height: calc(100% - 56px); overflow-y: auto;"></div>
+                <!-- Typing indicator aligned with text box -->
+                <div id="typing-indicator">Bot is typing...</div>
                 <div class="d-flex">
                     <input type="text" id="user-input" placeholder="Type your message">
                     <button id="send-btn">Send</button>
@@ -119,51 +135,46 @@ document.addEventListener('DOMContentLoaded', function () {
 
         connectedCallback() {
             this.setupEventListeners();
-            // Simulate a greeting from the bot
+            this.hideTypingIndicator();
             this.sendMessage('bot', 'Hello friends! Ask any question at once!');
         }
 
         setupEventListeners() {
             const shadowRoot = this.shadowRoot;
 
-            // Function to toggle chat container
             const toggleChatContainer = () => {
                 const chatContainer = shadowRoot.getElementById('chat-container');
                 chatContainer.classList.toggle('show');
             };
 
-            // Function to scroll the chatbox window to the bottom
-            const scrollChatToBottom = () => {
-                const chatContent = shadowRoot.getElementById('chat-content');
-                chatContent.scrollTop = chatContent.scrollHeight;
-            };
-
-            // Event listener for send button click
             shadowRoot.getElementById('send-btn').addEventListener('click', () => {
                 this.sendUserMessage();
             });
 
-            // Event listener for Enter key press in the input field
             shadowRoot.getElementById('user-input').addEventListener('keypress', (e) => {
                 if (e.which === 13) {
                     this.sendUserMessage();
                 }
             });
 
-            // Event listener for toggle button click
             shadowRoot.getElementById('toggle-chat-btn').addEventListener('click', () => {
                 toggleChatContainer();
             });
         }
 
-        // Function to send user messages
         async sendUserMessage() {
             const baseUrl = 'https://chatbotnode-4.onrender.com';
             const userInput = this.shadowRoot.getElementById('user-input').value;
             if (userInput.trim() !== '') {
                 this.sendMessage('user', userInput);
                 this.shadowRoot.getElementById('user-input').value = '';
+        
                 try {
+                    // Add a short delay before showing the typing indicator
+                    setTimeout(() => {
+                        this.showTypingIndicator();
+                    }, 1000);  // Delay of 1000ms before showing the indicator
+        
                     const response = await fetch(`${baseUrl}/processUserMessage`, {
                         method: 'POST',
                         headers: {
@@ -171,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         },
                         body: JSON.stringify({ userInput }),
                     });
-
+        
                     if (response.ok) {
                         const data = await response.json();
                         const botResponse = data.botResponse;
@@ -179,29 +190,43 @@ document.addEventListener('DOMContentLoaded', function () {
                     } else {
                         console.error('Server error:', response.statusText);
                     }
-
-                    const lastMessage = this.shadowRoot.querySelector('.user-message:last-child');
-                    if (lastMessage) {
-                        lastMessage.scrollIntoView({ behavior: 'smooth' });
-                    }
                 } catch (error) {
                     console.error('Error sending user message:', error);
+                } finally {
+                    // Hide typing indicator when response is fetched
+                    this.hideTypingIndicator();
                 }
             }
         }
+        
 
-        // Function to display messages
         sendMessage(sender, message) {
             const chatContent = this.shadowRoot.getElementById('chat-content');
-            chatContent.insertAdjacentHTML('beforeend', `<div class="chat-message ${sender}-message">${message}</div>`);
+        
+            // Regular expression to match URLs while handling potential trailing punctuation
+            const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/g;
+        
+            // Convert URLs in the message to clickable links
+            const formattedMessage = message.replace(urlRegex, (url) => {
+                const linkText = url.replace(/[.,;?)]$/, ''); // Remove trailing punctuation
+                return `<a href="${linkText}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+            });
+        
+            chatContent.insertAdjacentHTML('beforeend', `<div class="chat-message ${sender}-message">${formattedMessage}</div>`);
             chatContent.scrollTop = chatContent.scrollHeight;
+        }        
+        
+        
+        showTypingIndicator() {
+            this.shadowRoot.getElementById('typing-indicator').textContent = 'Bot is typing...';
+        }
+
+        hideTypingIndicator() {
+            this.shadowRoot.getElementById('typing-indicator').textContent = '';
         }
     }
 
-    // Register the custom element
     customElements.define('chatbot-widget', ChatbotWidget);
-
-    // Add the chatbot widget to the page
     const widget = document.createElement('chatbot-widget');
     document.body.appendChild(widget);
 });
