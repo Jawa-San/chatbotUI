@@ -238,14 +238,22 @@ document.addEventListener('DOMContentLoaded', function () {
             const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/g;
         
             // Convert URLs in the message to clickable links
-            const formattedMessage = message.replace(urlRegex, (url) => {
+            let formattedMessage = message.replace(urlRegex, (url) => {
                 const linkText = url.replace(/[.,;?)]$/, ''); // Remove trailing punctuation
                 return `<a href="${linkText}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
             });
         
+            // Regular expression to remove citation references (e.g., " ")
+            const citationRegex = /【\d+:\d+†source】/g; // Regex to match citation references
+        
+            // Remove citations from the formatted message
+            formattedMessage = formattedMessage.replace(citationRegex, '');
+        
+            // Insert the cleaned-up message into the chat content
             chatContent.insertAdjacentHTML('beforeend', `<div class="chat-message ${sender}-message">${formattedMessage}</div>`);
             chatContent.scrollTop = chatContent.scrollHeight;
-        }        
+        }
+        
         
         
         showTypingIndicator() {
