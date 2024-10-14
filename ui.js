@@ -7,6 +7,28 @@ document.addEventListener('DOMContentLoaded', function () {
             background-color: #f8f9fa !important;
         }
         
+        /* Popup message styling */
+        .chatbot-widget #popup-message {
+            position: fixed !important;
+            bottom: 80px !important;
+            left: 20px !important;
+            background-color: #007bff !important;
+            color: #fff !important;
+            padding: 10px !important;
+            border-radius: 10px !important;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+            font-size: 14px !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transition: opacity 0.5s ease, visibility 0s 0.5s !important;
+            z-index: 1001 !important;
+        }
+        .chatbot-widget #popup-message.show {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transition-delay: 0s !important;
+        }
+
         .chatbot-widget #toggle-chat-btn {
             position: fixed !important;
             bottom: 20px !important;
@@ -121,6 +143,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             </div>
         </div>
+    <!-- Popup message -->
+        <div id="popup-message">Click the chatbot to ask your questions!</div>
     </div>
     `;
 
@@ -136,7 +160,13 @@ document.addEventListener('DOMContentLoaded', function () {
         connectedCallback() {
             this.setupEventListeners();
             this.hideTypingIndicator();
-            this.sendMessage('bot', 'Hello friends! Ask any question at once!');
+            this.sendMessage('bot', 'Hello there! Ask any question at once!');
+
+            // Show the popup message with a delay
+            setTimeout(() => {
+                this.showPopupMessage();
+            }, 777); // Adjust the delay as needed
+
         }
 
         setupEventListeners() {
@@ -145,6 +175,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const toggleChatContainer = () => {
                 const chatContainer = shadowRoot.getElementById('chat-container');
                 chatContainer.classList.toggle('show');
+                this.hidePopupMessage(); // Hide popup when chat is opened
             };
 
             shadowRoot.getElementById('send-btn').addEventListener('click', () => {
@@ -223,6 +254,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
         hideTypingIndicator() {
             this.shadowRoot.getElementById('typing-indicator').textContent = '';
+        }
+
+        showPopupMessage() {
+            const popup = this.shadowRoot.getElementById('popup-message');
+            popup.classList.add('show');
+            // Automatically hide the popup after a certain time
+            setTimeout(() => {
+                this.hidePopupMessage();
+            }, 4000); // Adjust the duration as needed
+        }
+
+        hidePopupMessage() {
+            const popup = this.shadowRoot.getElementById('popup-message');
+            popup.classList.remove('show');
         }
     }
 
