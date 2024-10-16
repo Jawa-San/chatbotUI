@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         async sendUserMessage() {
-            const baseUrl = 'http://localhost:3000';
+            const baseUrl = 'https://chatbotnode-4.onrender.com';
             const userInput = this.shadowRoot.getElementById('user-input').value;
             const faqContainer = this.shadowRoot.querySelector('.faq-container');
 
