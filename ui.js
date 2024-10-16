@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
             bottom: 80px !important;
             left: 20px !important;
             width: 300px !important;
-            height: 400px !important;
+            height: 500px !important;
             overflow: hidden !important;
             transition: max-height 0.3s ease-out !important;
             border-radius: 15px !important;
@@ -126,15 +126,44 @@ document.addEventListener('DOMContentLoaded', function () {
         .chatbot-widget .d-flex {
             display: block !important;
         }
+        
+        .chatbot-widget .faq-container button {
+          display: flex !important;
+          justify-content: center !important;
+          align-items: center !important;
+          width: 80% !important;
+          margin: 10px 0 !important;
+          margin-left: 25px !important;
+          padding: 8px !important;
+          background-color: #007bff !important;
+          color: white !important;
+          border: none !important;
+          border-radius: 5px !important;
+          cursor: pointer !important;
+        }
+
+        .chatbot-widget .faq-container button:hover {
+            background-color: #0056b3 !important;
+        }
     </style>
     <div class="chatbot-widget">
         <div id="toggle-chat-btn">
             <img src="https://openai.com/favicon.ico" alt="Chat Icon" style="width: 100%; height: 100%; border-radius: 50%;">
         </div>
         <div id="chat-container" class="bg-light">
-            <div class="p-3" style="height: 400px; overflow: auto;">
+            <div class="p-3" style="height: 500px; overflow: auto;">
                 <h5>Chatbot</h5>
-                <div id="chat-content" style="height: calc(100% - 56px); overflow-y: auto;"></div>
+                <div id="chat-content" style="height: calc(100% - 56px); overflow-y: auto;">
+                    <div class="chat-message bot-message">
+                        Hi there! Ask a question or choose from the options below!
+                    </div>
+                    <!-- FAQ Section -->
+                    <div class="faq-container">
+                    <button onclick="sendFaqQuestion('Who is Joshua?')">Who is Joshua?</button>
+                    <button onclick="sendFaqQuestion('What skills does Joshua have?')">What skills does Joshua have?</button>
+                    <button onclick="sendFaqQuestion('Which college did Joshua attend?')">Which college did Joshua attend?</button>
+                    </div>
+                </div>
                 <!-- Typing indicator aligned with text box -->
                 <div id="typing-indicator">Bot is typing...</div>
                 <div class="d-flex">
@@ -144,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         </div>
     <!-- Popup message -->
-        <div id="popup-message">Click the chatbot to ask your questions!</div>
+        <div id="popup-message">Click this icon to any questions you may have!</div>
     </div>
     `;
 
@@ -160,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
         connectedCallback() {
             this.setupEventListeners();
             this.hideTypingIndicator();
-            this.sendMessage('bot', 'Hello there! Ask any question at once!');
+            //this.sendMessage('bot', 'Hi there! Ask a question or choose from the options below!');
 
             // Show the popup message with a delay
             setTimeout(() => {
@@ -194,13 +223,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         async sendUserMessage() {
-            const baseUrl = 'https://chatbotnode-4.onrender.com';
+            const baseUrl = 'http://localhost:3000';
             const userInput = this.shadowRoot.getElementById('user-input').value;
+            const faqContainer = this.shadowRoot.querySelector('.faq-container');
+
             if (userInput.trim() !== '') {
                 this.sendMessage('user', userInput);
                 this.shadowRoot.getElementById('user-input').value = '';
         
                 try {
+                    // Hide the FAQ options whenever a user message is sent
+                    faqContainer.style.display = 'none';
                     // Add a short delay before showing the typing indicator
                     setTimeout(() => {
                         this.showTypingIndicator();
@@ -278,6 +311,19 @@ document.addEventListener('DOMContentLoaded', function () {
             popup.classList.remove('show');
         }
     }
+        // FAQ question handler
+        window.sendFaqQuestion = function (question) {
+        const widgetInstance = document.querySelector('chatbot-widget').shadowRoot;
+        const chatContent = widgetInstance.getElementById('chat-content');
+        const faqContainer = widgetInstance.querySelector('.faq-container');
+        
+        widgetInstance.querySelector('#user-input').value = question;
+        widgetInstance.querySelector('#send-btn').click();
+
+        // Hide FAQ options after a question is clicked
+        faqContainer.style.display = 'none';
+        chatContent.scrollTop = chatContent.scrollHeight;
+    };
 
     customElements.define('chatbot-widget', ChatbotWidget);
     const widget = document.createElement('chatbot-widget');
