@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         </div>
     <!-- Popup message -->
-        <div id="popup-message">Click this icon to any questions you may have!</div>
+        <div id="popup-message">Click this icon to answer any questions you may have!</div>
     </div>
     `;
 
