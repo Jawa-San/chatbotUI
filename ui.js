@@ -1,242 +1,179 @@
-document.addEventListener('DOMContentLoaded', (function(document) {
-    // Encapsulate the entire script to prevent global scope pollution
-
-    // Define the HTML content without global functions
+document.addEventListener('DOMContentLoaded', function () {
+    // Define the HTML content
     const htmlContent = `
     <style>
-        /* Container Styles */
         .chatbot-widget {
-            font-family: 'Arial', sans-serif;
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 9999;
+            font-family: 'Arial', sans-serif !important;
+            background-color: #f8f9fa !important;
+        }
+        
+        /* Popup message styling */
+        .chatbot-widget #popup-message {
+            position: fixed !important;
+            bottom: 80px !important;
+            left: 20px !important;
+            background-color: #007bff !important;
+            color: #fff !important;
+            padding: 10px !important;
+            border-radius: 10px !important;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+            font-size: 14px !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transition: opacity 0.5s ease, visibility 0s 0.5s !important;
+            z-index: 1001 !important;
+        }
+        .chatbot-widget #popup-message.show {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transition-delay: 0s !important;
         }
 
-        /* Toggle Button Styles */
-        #toggle-chat-btn {
-            width: 50px;
-            height: 50px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s ease;
+        .chatbot-widget #toggle-chat-btn {
+            position: fixed !important;
+            bottom: 20px !important;
+            left: 20px !important;
+            width: 50px !important;
+            height: 50px !important;
+            background-color: #007bff !important;
+            color: #fff !important;
+            border-radius: 50% !important;
+            text-align: center !important;
+            line-height: 50px !important;
+            cursor: pointer !important;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+        }
+        
+        .chatbot-widget #chat-container {
+            background-color: #f0f0f0 !important;
+            display: none !important;
+            text-align: center !important;
+            position: fixed !important;
+            bottom: 80px !important;
+            left: 20px !important;
+            width: 300px !important;
+            height: 500px !important;
+            overflow: hidden !important;
+            transition: max-height 0.3s ease-out !important;
+            border-radius: 15px !important;
+            z-index: 1000 !important;
+        }
+        
+        .chatbot-widget #chat-content {
+            max-height: calc(100% - 175px) !important;
+            overflow-y: auto !important;
+        }
+        
+        .chatbot-widget #user-input {
+            width: 70% !important;
+            padding: 8px !important;
+            border: 1px solid #ccc !important;
+            border-radius: 5px !important;
+            margin-right: 8px !important;
+            margin-bottom: 8px !important;
+        }
+        
+        .chatbot-widget #send-btn {
+            padding: 8px 16px !important;
+            background-color: #007bff !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 5px !important;
+            cursor: pointer !important;
+        }
+        
+        .chatbot-widget .chat-message {
+            margin: 10px !important;
+            padding: 10px !important;
+            border-radius: 15px !important;
+            word-wrap: break-word !important;
+            width: fit-content !important;
+            max-width: 80% !important;
+            min-height: 20px !important;
+            text-align: left !important;
+        }
+        
+        .chatbot-widget .user-message {
+            background-color: #007bff !important;
+            color: #fff !important;
+            margin-left: auto !important;
+            margin-right: 10px !important;
+            text-align: left !important;
+        }
+        
+        .chatbot-widget .bot-message {
+            background-color: #b2e0b2 !important;
+            color: #000 !important;
+            margin-left: 10px !important;
+            margin-right: auto !important;
+            text-align: left !important;
+        }
+        
+        .chatbot-widget #chat-container.show {
+            display: block !important;
         }
 
-        #toggle-chat-btn:hover,
-        #toggle-chat-btn:focus {
-            background-color: #0056b3;
-            outline: none;
+        .chatbot-widget #typing-indicator {
+            font-style: italic !important;
+            color: #666 !important;
+            margin-bottom: 8px !important;
+            margin-left: 40px !important;
+            height: 20px !important; /* Keeps the padding consistent */
+            display: block !important;
+            text-align: left !important;
         }
 
-        /* Popup Message Styles */
-        #popup-message {
-            position: fixed;
-            bottom: 80px;
-            left: 20px;
-            background-color: #007bff;
-            color: #fff;
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            font-size: 14px;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.5s ease, visibility 0s 0.5s;
+        .chatbot-widget .d-flex {
+            display: block !important;
+        }
+        
+        .chatbot-widget .faq-container button {
+          display: flex !important;
+          justify-content: center !important;
+          align-items: center !important;
+          width: 80% !important;
+          margin: 10px 0 !important;
+          margin-left: 25px !important;
+          padding: 8px !important;
+          background-color: #007bff !important;
+          color: white !important;
+          border: none !important;
+          border-radius: 5px !important;
+          cursor: pointer !important;
         }
 
-        #popup-message.show {
-            opacity: 1;
-            visibility: visible;
-            transition-delay: 0s;
-        }
-
-        /* Chat Container Styles */
-        #chat-container {
-            background-color: #f0f0f0;
-            display: none;
-            text-align: center;
-            position: fixed;
-            bottom: 80px;
-            left: 20px;
-            width: 300px;
-            height: 500px;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out, opacity 0.3s ease;
-            border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        #chat-container.show {
-            display: block;
-            opacity: 1;
-        }
-
-        /* Chat Content Styles */
-        .p-3 {
-            padding: 15px;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #chat-content {
-            flex-grow: 1;
-            overflow-y: auto;
-            margin-bottom: 10px;
-        }
-
-        .chat-message {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 15px;
-            word-wrap: break-word;
-            width: fit-content;
-            max-width: 80%;
-            min-height: 20px;
-            text-align: left;
-        }
-
-        .user-message {
-            background-color: #007bff;
-            color: #fff;
-            margin-left: auto;
-            margin-right: 10px;
-        }
-
-        .bot-message {
-            background-color: #b2e0b2;
-            color: #000;
-            margin-left: 10px;
-            margin-right: auto;
-        }
-
-        /* Typing Indicator Styles */
-        #typing-indicator {
-            font-style: italic;
-            color: #666;
-            margin-bottom: 8px;
-            margin-left: 10px;
-            height: 20px; /* Maintains consistent padding */
-            display: none;
-            text-align: left;
-        }
-
-        /* Input and Button Styles */
-        .input-container {
-            display: flex;
-            align-items: center;
-        }
-
-        #user-input {
-            flex-grow: 1;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin-right: 8px;
-        }
-
-        #send-btn {
-            padding: 8px 16px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        #send-btn:hover,
-        #send-btn:focus {
-            background-color: #0056b3;
-            outline: none;
-        }
-
-        /* FAQ Button Styles */
-        .faq-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        .faq-container button {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 80%;
-            margin: 5px 0;
-            padding: 8px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .faq-container button:hover,
-        .faq-container button:focus {
-            background-color: #0056b3;
-            outline: none;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 600px) {
-            #chat-container {
-                width: 90%;
-                height: 80%;
-                left: 5%;
-                bottom: 70px;
-            }
-
-            #toggle-chat-btn {
-                width: 40px;
-                height: 40px;
-                bottom: 15px;
-                left: 15px;
-            }
+        .chatbot-widget .faq-container button:hover {
+            background-color: #0056b3 !important;
         }
     </style>
     <div class="chatbot-widget">
-        <!-- Toggle Button -->
-        <button id="toggle-chat-btn" role="button" aria-label="Open chat" tabindex="0">
-            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAQAAAAAYLlVAAAAKUlEQVR4Ae3BAQ0AAADCoPdPbQ43oAAAAAAAAAAAAgD9GAAAFgN4aAAAAAElFTkSuQmCC" alt="Chat Icon" style="width: 100%; height: 100%; border-radius: 50%;">
-        </button>
-
-        <!-- Popup Message -->
-        <div id="popup-message" aria-live="polite">Click this icon to answer any questions you may have!</div>
-
-        <!-- Chat Container -->
-        <div id="chat-container" role="dialog" aria-modal="true" aria-labelledby="chat-title">
-            <div class="p-3">
-                <h5 id="chat-title">Chatbot</h5>
-                <div id="chat-content">
+        <div id="toggle-chat-btn">
+            <img src="https://openai.com/favicon.ico" alt="Chat Icon" style="width: 100%; height: 100%; border-radius: 50%;">
+        </div>
+        <div id="chat-container" class="bg-light">
+            <div class="p-3" style="height: 500px; overflow: auto;">
+                <h5>Chatbot</h5>
+                <div id="chat-content" style="height: calc(100% - 56px); overflow-y: auto;">
                     <div class="chat-message bot-message">
                         Hi there! Ask a question or choose from the options below!
                     </div>
                     <!-- FAQ Section -->
                     <div class="faq-container">
-                        <button>Who is Joshua?</button>
-                        <button>What skills does Joshua have?</button>
-                        <button>Which college did Joshua attend?</button>
+                    <button onclick="sendFaqQuestion('Who is Joshua?')">Who is Joshua?</button>
+                    <button onclick="sendFaqQuestion('What skills does Joshua have?')">What skills does Joshua have?</button>
+                    <button onclick="sendFaqQuestion('Which college did Joshua attend?')">Which college did Joshua attend?</button>
                     </div>
                 </div>
-                <!-- Typing Indicator -->
-                <div id="typing-indicator" aria-live="polite">Bot is typing...</div>
-                <!-- Input and Send Button -->
-                <div class="input-container">
-                    <input type="text" id="user-input" placeholder="Type your message" aria-label="User input">
-                    <button id="send-btn" aria-label="Send message">Send</button>
+                <!-- Typing indicator aligned with text box -->
+                <div id="typing-indicator">Bot is typing...</div>
+                <div class="d-flex">
+                    <input type="text" id="user-input" placeholder="Type your message">
+                    <button id="send-btn">Send</button>
                 </div>
             </div>
         </div>
+    <!-- Popup message -->
+        <div id="popup-message">Click this icon to answer any questions you may have!</div>
     </div>
     `;
 
@@ -244,19 +181,21 @@ document.addEventListener('DOMContentLoaded', (function(document) {
     class ChatbotWidget extends HTMLElement {
         constructor() {
             super();
-            // Attach closed shadow DOM for better encapsulation
-            const shadow = this.attachShadow({ mode: 'closed' });
+            // Attach shadow DOM and add styles and HTML content
+            const shadow = this.attachShadow({ mode: 'open' });
             shadow.innerHTML = htmlContent;
         }
 
         connectedCallback() {
             this.setupEventListeners();
             this.hideTypingIndicator();
+            //this.sendMessage('bot', 'Hi there! Ask a question or choose from the options below!');
 
             // Show the popup message with a delay
             setTimeout(() => {
                 this.showPopupMessage();
             }, 777); // Adjust the delay as needed
+
         }
 
         setupEventListeners() {
@@ -266,64 +205,40 @@ document.addEventListener('DOMContentLoaded', (function(document) {
                 const chatContainer = shadowRoot.getElementById('chat-container');
                 chatContainer.classList.toggle('show');
                 this.hidePopupMessage(); // Hide popup when chat is opened
-
-                if (chatContainer.classList.contains('show')) {
-                    shadowRoot.getElementById('user-input').focus();
-                }
             };
 
-            // Toggle Chat on Button Click
-            const toggleBtn = shadowRoot.getElementById('toggle-chat-btn');
-            toggleBtn.addEventListener('click', () => {
-                toggleChatContainer();
-            });
-
-            // Toggle Chat on Keyboard (Enter or Space)
-            toggleBtn.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    toggleChatContainer();
-                }
-            });
-
-            // Send Button Click
             shadowRoot.getElementById('send-btn').addEventListener('click', () => {
                 this.sendUserMessage();
             });
 
-            // Send Message on Enter Key in Input
             shadowRoot.getElementById('user-input').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
+                if (e.which === 13) {
                     this.sendUserMessage();
                 }
             });
 
-            // FAQ Buttons Click
-            shadowRoot.querySelectorAll('.faq-container button').forEach(button => {
-                button.addEventListener('click', () => {
-                    const question = button.textContent.trim();
-                    this.handleFaqQuestion(question);
-                });
+            shadowRoot.getElementById('toggle-chat-btn').addEventListener('click', () => {
+                toggleChatContainer();
             });
         }
 
         async sendUserMessage() {
             const baseUrl = 'https://chatbotnode-4.onrender.com';
-            const userInputElem = this.shadowRoot.getElementById('user-input');
-            const userInput = userInputElem.value;
+            const userInput = this.shadowRoot.getElementById('user-input').value;
             const faqContainer = this.shadowRoot.querySelector('.faq-container');
 
             if (userInput.trim() !== '') {
                 this.sendMessage('user', userInput);
-                userInputElem.value = '';
-
+                this.shadowRoot.getElementById('user-input').value = '';
+        
                 try {
                     // Hide the FAQ options whenever a user message is sent
                     faqContainer.style.display = 'none';
                     // Add a short delay before showing the typing indicator
                     setTimeout(() => {
                         this.showTypingIndicator();
-                    }, 500);  // Delay of 500ms before showing the indicator
-
+                    }, 1000);  // Delay of 1000ms before showing the indicator
+        
                     const response = await fetch(`${baseUrl}/processUserMessage`, {
                         method: 'POST',
                         headers: {
@@ -331,67 +246,55 @@ document.addEventListener('DOMContentLoaded', (function(document) {
                         },
                         body: JSON.stringify({ userInput }),
                     });
-
+        
                     if (response.ok) {
                         const data = await response.json();
                         const botResponse = data.botResponse;
                         this.sendMessage('bot', botResponse);
                     } else {
                         console.error('Server error:', response.statusText);
-                        this.sendMessage('bot', 'Sorry, there was an error processing your request.');
                     }
                 } catch (error) {
                     console.error('Error sending user message:', error);
-                    this.sendMessage('bot', 'Sorry, something went wrong.');
                 } finally {
                     // Hide typing indicator when response is fetched
                     this.hideTypingIndicator();
                 }
             }
         }
-
-        handleFaqQuestion(question) {
-            const userInputElem = this.shadowRoot.getElementById('user-input');
-            userInputElem.value = question;
-            this.sendUserMessage();
-        }
+        
 
         sendMessage(sender, message) {
             const chatContent = this.shadowRoot.getElementById('chat-content');
-
+        
             // Regular expression to match URLs while handling potential trailing punctuation
             const urlRegex = /https?:\/\/[^\s/$.?#].[^\s]*/g;
-
+        
             // Convert URLs in the message to clickable links
             let formattedMessage = message.replace(urlRegex, (url) => {
                 const linkText = url.replace(/[.,;?)]$/, ''); // Remove trailing punctuation
                 return `<a href="${linkText}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
             });
-
-            // Regular expression to remove citation references (e.g., "【1:2†source】")
+        
+            // Regular expression to remove citation references (e.g., " ")
             const citationRegex = /【\d+:\d+†source】/g; // Regex to match citation references
-
+        
             // Remove citations from the formatted message
             formattedMessage = formattedMessage.replace(citationRegex, '');
-
+        
             // Insert the cleaned-up message into the chat content
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('chat-message', `${sender}-message`);
-            messageDiv.innerHTML = formattedMessage;
-            chatContent.appendChild(messageDiv);
+            chatContent.insertAdjacentHTML('beforeend', `<div class="chat-message ${sender}-message">${formattedMessage}</div>`);
             chatContent.scrollTop = chatContent.scrollHeight;
         }
-
+        
+        
+        
         showTypingIndicator() {
-            const typingIndicator = this.shadowRoot.getElementById('typing-indicator');
-            typingIndicator.textContent = 'Bot is typing...';
-            typingIndicator.style.display = 'block';
+            this.shadowRoot.getElementById('typing-indicator').textContent = 'Bot is typing...';
         }
 
         hideTypingIndicator() {
-            const typingIndicator = this.shadowRoot.getElementById('typing-indicator');
-            typingIndicator.textContent = '';
-            typingIndicator.style.display = 'none';
+            this.shadowRoot.getElementById('typing-indicator').textContent = '';
         }
 
         showPopupMessage() {
@@ -408,10 +311,21 @@ document.addEventListener('DOMContentLoaded', (function(document) {
             popup.classList.remove('show');
         }
     }
+        // FAQ question handler
+        window.sendFaqQuestion = function (question) {
+        const widgetInstance = document.querySelector('chatbot-widget').shadowRoot;
+        const chatContent = widgetInstance.getElementById('chat-content');
+        const faqContainer = widgetInstance.querySelector('.faq-container');
+        
+        widgetInstance.querySelector('#user-input').value = question;
+        widgetInstance.querySelector('#send-btn').click();
 
-    // Define and append the custom element
+        // Hide FAQ options after a question is clicked
+        faqContainer.style.display = 'none';
+        chatContent.scrollTop = chatContent.scrollHeight;
+    };
+
     customElements.define('chatbot-widget', ChatbotWidget);
     const widget = document.createElement('chatbot-widget');
     document.body.appendChild(widget);
-
-})(document));
+});
